@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATUverce — Клубы</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    .clubs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .clubs-grid { grid-template-columns: 1fr; } }
+    .club-card { padding: 20px; cursor: pointer; transition: transform 0.15s; }
+    .club-card:hover { transform: translateY(-2px); }
+    .club-logo {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--red));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin-bottom: 12px;
+    }
+    .club-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .club-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px; }
+    .club-footer { display: flex; justify-content: space-between; align-items: center; }
+    .members-badge {
+      font-size: 12px; color: var(--text-muted);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .join-btn {
+      padding: 6px 16px; border-radius: 8px;
+      border: 1.5px solid var(--primary);
+      background: none; color: var(--primary);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .join-btn:hover, .join-btn.member {
+      background: var(--primary); color: white;
+    }
+    .join-btn.member { background: var(--red); border-color: var(--red); }
+    .club-events { margin-top: 12px; }
+    .event-item {
+      display: flex; gap: 10px; padding: 10px 0;
+      border-bottom: 1px solid var(--border); font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="feed.html" class="navbar-brand">
+    <div class="navbar-logo">АТУ</div>
+    ATU<span class="brand-red">verce</span>
+  </a>
+  <div class="navbar-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Поиск клубов...">
+  </div>
+  <div class="navbar-actions">
+    <button onclick="setLang('ru')" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer" id="lang-ru">RU</button>
+    <button onclick="setLang('en')" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer" id="lang-en">EN</button>
+    <button onclick="setLang('ky')" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer" id="lang-ky">КЫ</button>
+    <div class="ala-coins-badge">🪙 <span id="my-coins">—</span></div>
+    <button class="nav-icon-btn">🔔</button>
+    <button class="nav-icon-btn" onclick="window.location.href='profile.html'">👤</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-college-badge">
+      <div class="cname">Ала-Тоо IUC</div>
+      <div class="cdesc">IT & Business College</div>
+    </div>
+    <a href="feed.html" class="nav-link"><span class="icon">🏠</span> Главная</a>
+    <a href="profile.html" class="nav-link"><span class="icon">👤</span> Мой профиль</a>
+    <a href="news.html" class="nav-link"><span class="icon">📰</span> Новости ATU</a>
+    <a href="clubs.html" class="nav-link active"><span class="icon">🎓</span> Клубы</a>
+    <a href="leaderboard.html" class="nav-link"><span class="icon">🏆</span> Лидерборд</a>
+    <a href="ai_chat.html" class="nav-link"><span class="icon">🤖</span> ИИ Помощник</a>
+    <hr style="margin:14px 4px;border:none;border-top:1px solid var(--border)">
+    <button onclick="api.logout()" style="width:100%;border:none;background:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;color:var(--red);font-size:14px;font-weight:500"
+      onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
+      <span style="font-size:18px">🚪</span> Выйти
+    </button>
+  </aside>
+
+  <main class="main-content" style="max-width:800px">
+    <div class="card" style="padding:16px;margin-bottom:16px;background:linear-gradient(135deg,var(--primary),var(--red));border:none">
+      <h2 style="color:white;font-size:20px;margin-bottom:6px">🎓 Клубы Ала-Тоо</h2>
+      <p style="color:rgba(255,255,255,0.85);font-size:14px">Вступай в клуб и получай <strong>+5 Ala Coins</strong> за участие!</p>
+    </div>
+
+    <div id="clubs-grid" class="clubs-grid">
+      <div style="text-align:center;padding:40px;color:var(--text-muted);grid-column:1/-1">
+        <div style="font-size:32px;margin-bottom:8px">🎓</div>
+        Загружаем клубы...
+      </div>
+    </div>
+  </main>
+
+  <aside class="right-sidebar">
+    <div class="card" style="padding:16px;border-top:3px solid var(--primary)">
+      <div class="section-header"><span>📅</span><h3>Ближайшие события клубов</h3></div>
+      <div id="club-events-list" style="font-size:13px;color:var(--text-muted)">Загружаем...</div>
+    </div>
+    <div class="card" style="padding:16px;margin-top:12px;border-top:3px solid var(--red)">
+      <div class="section-header"><span>🪙</span><h3 style="color:var(--red)">Монеты за клубы</h3></div>
+      <div style="font-size:13px;line-height:2">
+        <div>🎓 Вступить в клуб — <strong>+5</strong></div>
+        <div>📅 Посетить событие — <strong>+3</strong></div>
+        <div>🏆 Победить в конкурсе — <strong>+10</strong></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<nav class="mobile-tabbar">
+  <a href="feed.html" class="tab-item"><span class="tab-icon">🏠</span>Главная</a>
+  <a href="news.html" class="tab-item"><span class="tab-icon">📰</span>Новости</a>
+  <a href="ai_chat.html" class="tab-item"><span class="tab-icon">🤖</span>ИИ</a>
+  <a href="leaderboard.html" class="tab-item"><span class="tab-icon">🏆</span>Рейтинг</a>
+  <a href="profile.html" class="tab-item"><span class="tab-icon">👤</span>Профиль</a>
+</nav>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+const clubEmojis = ['💻', '🎨', '🎵', '⚽', '🧠', '🚀', '🤝', '📸', '🎭', '📚'];
+
+async function init() {
+  try {
+    const coins = await api.getMyCoins();
+    document.getElementById('my-coins').textContent = coins.total;
+  } catch(e) {}
+
+  try {
+    const clubs = await api.getClubs();
+    renderClubs(clubs);
+    renderClubEvents(clubs);
+  } catch(e) {
+    document.getElementById('clubs-grid').innerHTML =
+      '<div style="text-align:center;padding:40px;color:var(--text-muted);grid-column:1/-1">Ошибка загрузки</div>';
+  }
+}
+
+function renderClubs(clubs) {
+  if (clubs.length === 0) {
+    document.getElementById('clubs-grid').innerHTML =
+      '<div style="text-align:center;padding:40px;color:var(--text-muted);grid-column:1/-1">Клубов пока нет. Создай первый!</div>';
+    return;
+  }
+
+  document.getElementById('clubs-grid').innerHTML = clubs.map((club, i) => `
+    <div class="card club-card">
+      <div class="club-logo">${clubEmojis[i % clubEmojis.length]}</div>
+      <div class="club-name">${club.name}</div>
+      <div class="club-desc">${club.description.slice(0, 100)}${club.description.length > 100 ? '...' : ''}</div>
+      ${club.events && club.events.length > 0 ? `
+        <div class="club-events">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px">Ближайшие события</div>
+          ${club.events.slice(0,2).map(e => `
+            <div class="event-item">
+              <span>📅</span>
+              <div>
+                <div style="font-weight:500">${e.title}</div>
+                <div style="color:var(--text-muted)">${new Date(e.event_date).toLocaleDateString('ru-RU')}</div>
+              </div>
+            </div>`).join('')}
+        </div>` : ''}
+      <div class="club-footer">
+        <div class="members-badge">👥 ${club.members_count} участников</div>
+        <button class="join-btn ${club.is_member ? 'member' : ''}"
+          id="join-btn-${club.id}"
+          onclick="toggleJoin(${club.id}, this)">
+          ${club.is_member ? '✓ В клубе' : '+ Вступить'}
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+function renderClubEvents(clubs) {
+  const events = clubs.flatMap(c => (c.events || []).map(e => ({...e, clubName: c.name})))
+    .filter(e => new Date(e.event_date) > new Date())
+    .sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
+
+  document.getElementById('club-events-list').innerHTML = events.length > 0
+    ? events.slice(0, 5).map(e => `
+        <div style="padding:8px 0;border-bottom:1px solid var(--border)">
+          <div style="font-weight:600;margin-bottom:2px">${e.title}</div>
+          <div style="color:var(--text-muted);font-size:12px">${e.clubName} · ${new Date(e.event_date).toLocaleDateString('ru-RU')}</div>
+        </div>`).join('')
+    : 'Нет запланированных событий';
+}
+
+async function toggleJoin(clubId, btn) {
+  try {
+    const res = await api.joinClub(clubId);
+    const joined = res.action === 'joined';
+    btn.textContent = joined ? '✓ В клубе' : '+ Вступить';
+    btn.classList.toggle('member', joined);
+    if (joined) utils.showAlert(`Вступил в клуб! +5 Ala Coins 🪙`);
+    else utils.showAlert('Вышел из клуба', 'error');
+  } catch(e) {
+    utils.showAlert('Ошибка', 'error');
+  }
+}
+
+init();
+</script>
+</body>
+</html>

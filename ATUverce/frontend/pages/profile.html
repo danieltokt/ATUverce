@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATUverce — Профиль</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    .profile-cover {
+      height: 160px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--red) 100%);
+      border-radius: var(--radius) var(--radius) 0 0;
+      position: relative;
+    }
+    .profile-avatar-wrap {
+      position: absolute;
+      bottom: -40px; left: 24px;
+    }
+    .profile-avatar-wrap .avatar {
+      width: 80px; height: 80px;
+      font-size: 28px;
+      border: 4px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .profile-info { padding: 52px 24px 20px; }
+    .profile-name { font-size: 22px; font-weight: 800; }
+    .profile-handle { color: var(--text-muted); font-size: 14px; margin-top: 2px; }
+    .profile-bio { font-size: 14px; margin-top: 10px; line-height: 1.6; }
+    .profile-meta {
+      display: flex; gap: 16px; margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .meta-item { font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+    .profile-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: 0 24px;
+    }
+    .stat-cell {
+      padding: 14px 8px; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-cell:last-child { border-right: none; }
+    .stat-val { font-size: 20px; font-weight: 800; }
+    .stat-lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .coins-stat .stat-val { color: var(--red); }
+    .skills-section { padding: 16px 24px; }
+    .section-title {
+      font-size: 13px; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 10px;
+    }
+    .links-section { padding: 0 24px 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .link-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px;
+      border: 1.5px solid var(--border);
+      font-size: 13px; font-weight: 500;
+      text-decoration: none; color: var(--text);
+      transition: all 0.15s;
+    }
+    .link-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .tab-bar {
+      display: flex; border-bottom: 2px solid var(--border);
+      margin: 0 -1px;
+    }
+    .tab-btn {
+      flex: 1; padding: 12px; text-align: center;
+      border: none; background: none; cursor: pointer;
+      font-size: 14px; font-weight: 600; color: var(--text-muted);
+      border-bottom: 3px solid transparent; margin-bottom: -2px;
+      transition: all 0.15s;
+    }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-content { display: none; padding: 16px; }
+    .tab-content.active { display: block; }
+    .edit-modal-body { padding: 20px; max-height: 70vh; overflow-y: auto; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="feed.html" class="navbar-brand">
+    <div class="navbar-logo">АТУ</div>
+    ATU<span class="brand-red">verce</span>
+  </a>
+  <div class="navbar-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Поиск...">
+  </div>
+  <div class="navbar-actions">
+    <button onclick="setLang('ru')" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer" id="lang-ru">RU</button>
+    <button onclick="setLang('en')" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer" id="lang-en">EN</button>
+    <button onclick="setLang('ky')" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer" id="lang-ky">КЫ</button>
+    <div class="ala-coins-badge" onclick="window.location.href='leaderboard.html'">
+      🪙 <span id="my-coins">—</span>
+    </div>
+    <button class="nav-icon-btn">🔔</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-college-badge">
+      <div class="cname">Ала-Тоо IUC</div>
+      <div class="cdesc">IT & Business College</div>
+    </div>
+    <a href="feed.html" class="nav-link"><span class="icon">🏠</span> Главная</a>
+    <a href="profile.html" class="nav-link active"><span class="icon">👤</span> Мой профиль</a>
+    <a href="news.html" class="nav-link"><span class="icon">📰</span> Новости ATU</a>
+    <a href="clubs.html" class="nav-link"><span class="icon">🎓</span> Клубы</a>
+    <a href="leaderboard.html" class="nav-link"><span class="icon">🏆</span> Лидерборд</a>
+    <a href="ai_chat.html" class="nav-link"><span class="icon">🤖</span> ИИ Помощник</a>
+    <hr style="margin:14px 4px;border:none;border-top:1px solid var(--border)">
+    <button onclick="api.logout()" style="width:100%;border:none;background:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;color:var(--red);font-size:14px;font-weight:500"
+      onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
+      <span style="font-size:18px">🚪</span> Выйти
+    </button>
+  </aside>
+
+  <main class="main-content" style="max-width:720px">
+    <div class="card" id="profile-card">
+      <div class="profile-cover" id="profile-cover">
+        <div class="profile-avatar-wrap">
+          <div class="avatar" id="profile-avatar">—</div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;padding:12px 24px 0">
+        <button class="btn btn-outline" style="font-size:13px" onclick="openEditModal()">
+          ✏️ Редактировать профиль
+        </button>
+      </div>
+
+      <div class="profile-info">
+        <div class="profile-name" id="profile-name">Загружаем...</div>
+        <div class="profile-handle" id="profile-handle">@username</div>
+        <div class="profile-bio" id="profile-bio"></div>
+        <div class="profile-meta" id="profile-meta"></div>
+      </div>
+
+      <div class="profile-stats">
+        <div class="stat-cell">
+          <div class="stat-val" id="stat-posts">0</div>
+          <div class="stat-lbl">Постов</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-val" id="stat-followers">0</div>
+          <div class="stat-lbl">Подписчиков</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-val" id="stat-following">0</div>
+          <div class="stat-lbl">Подписок</div>
+        </div>
+        <div class="stat-cell coins-stat">
+          <div class="stat-val" id="stat-coins">0</div>
+          <div class="stat-lbl">Ala Coins 🪙</div>
+        </div>
+      </div>
+
+      <div class="skills-section" id="skills-section"></div>
+
+      <div class="links-section" id="links-section"></div>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('posts', this)">📝 Посты</button>
+        <button class="tab-btn" onclick="switchTab('about', this)">ℹ️ О себе</button>
+        <button class="tab-btn" onclick="switchTab('coins', this)">🪙 Монеты</button>
+      </div>
+
+      <div class="tab-content active" id="tab-posts">
+        <div id="user-posts">Загружаем...</div>
+      </div>
+
+      <div class="tab-content" id="tab-about">
+        <div id="about-content" style="font-size:14px;line-height:1.8;color:var(--text-muted)">
+          Загружаем...
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-coins">
+        <div id="coins-history">Загружаем...</div>
+      </div>
+    </div>
+  </main>
+
+  <aside class="right-sidebar">
+    <div class="card" style="padding:16px;border-top:3px solid var(--primary)">
+      <div class="section-header"><span>🎓</span><h3>Мои клубы</h3></div>
+      <div id="my-clubs" style="font-size:13px;color:var(--text-muted)">Загружаем...</div>
+      <a href="clubs.html" class="btn btn-outline" style="width:100%;margin-top:10px;font-size:13px">Все клубы →</a>
+    </div>
+  </aside>
+</div>
+
+<nav class="mobile-tabbar">
+  <a href="feed.html" class="tab-item"><span class="tab-icon">🏠</span>Главная</a>
+  <a href="news.html" class="tab-item"><span class="tab-icon">📰</span>Новости</a>
+  <a href="ai_chat.html" class="tab-item"><span class="tab-icon">🤖</span>ИИ</a>
+  <a href="leaderboard.html" class="tab-item"><span class="tab-icon">🏆</span>Рейтинг</a>
+  <a href="profile.html" class="tab-item active"><span class="tab-icon">👤</span>Профиль</a>
+</nav>
+
+<!-- Модалка редактирования -->
+<div id="edit-modal" class="modal-overlay" style="display:none">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-header">
+      <h3>✏️ Редактировать профиль</h3>
+      <button class="modal-close" onclick="closeModal('edit-modal')">✕</button>
+    </div>
+    <div class="edit-modal-body">
+      <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label class="form-label">Имя</label>
+          <input type="text" id="edit-first" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Фамилия</label>
+          <input type="text" id="edit-last" class="form-input">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">О себе</label>
+        <textarea id="edit-bio" class="form-input" rows="3" style="resize:none"
+          placeholder="Расскажи о себе, своих целях и интересах..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Навыки (через запятую)</label>
+        <input type="text" id="edit-skills" class="form-input" placeholder="Python, Design, Leadership">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Интересы (через запятую)</label>
+        <input type="text" id="edit-interests" class="form-input" placeholder="AI, Startup, Music">
+      </div>
+      <div class="form-group">
+        <label class="form-label">GitHub</label>
+        <input type="url" id="edit-github" class="form-input" placeholder="https://github.com/username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">LinkedIn</label>
+        <input type="url" id="edit-linkedin" class="form-input" placeholder="https://linkedin.com/in/username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Портфолио</label>
+        <input type="url" id="edit-portfolio" class="form-input" placeholder="https://myportfolio.com">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" style="border:1.5px solid var(--border)" onclick="closeModal('edit-modal')">Отмена</button>
+      <button class="btn btn-primary" onclick="saveProfile()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+let userData = null;
+
+async function init() {
+  try {
+    const [user, coins] = await Promise.all([
+      api.get('/users/me/'),
+      api.getMyCoins()
+    ]);
+    userData = user;
+
+    document.getElementById('my-coins').textContent = coins.total;
+    document.getElementById('profile-name').textContent = user.full_name || user.username;
+    document.getElementById('profile-handle').textContent = `@${user.username} · ${user.faculty || 'Студент'}`;
+    document.getElementById('profile-bio').textContent = user.bio || '';
+    document.getElementById('stat-followers').textContent = user.followers_count;
+    document.getElementById('stat-following').textContent = user.following_count;
+    document.getElementById('stat-coins').textContent = user.ala_coins;
+
+    const avatarEl = document.getElementById('profile-avatar');
+    if (user.avatar) {
+      avatarEl.innerHTML = `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover">`;
+    } else {
+      avatarEl.textContent = utils.getInitials(user.full_name || user.username);
+    }
+
+    // Мета
+    const meta = [];
+    if (user.group) meta.push(`🎓 ${user.group}`);
+    if (user.year_of_study) meta.push(`📅 ${user.year_of_study} курс`);
+    if (user.faculty) meta.push(`🏛️ ${user.faculty}`);
+    document.getElementById('profile-meta').innerHTML = meta.map(m =>
+      `<span class="meta-item">${m}</span>`).join('');
+
+    // Навыки
+    if (user.skills && user.skills.length > 0) {
+      document.getElementById('skills-section').innerHTML = `
+        <div class="section-title">💡 Навыки</div>
+        <div>${user.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div>
+        ${user.interests && user.interests.length > 0 ? `
+          <div class="section-title" style="margin-top:14px">🌟 Интересы</div>
+          <div>${user.interests.map(i => `<span class="skill-tag" style="background:#fff0f0;color:var(--red);border-color:#fcc">${i}</span>`).join('')}</div>
+        ` : ''}
+      `;
+    }
+
+    // Ссылки
+    const links = [];
+    if (user.github) links.push(`<a href="${user.github}" target="_blank" class="link-btn">🐙 GitHub</a>`);
+    if (user.linkedin) links.push(`<a href="${user.linkedin}" target="_blank" class="link-btn">💼 LinkedIn</a>`);
+    if (user.portfolio) links.push(`<a href="${user.portfolio}" target="_blank" class="link-btn">🌐 Портфолио</a>`);
+    if (links.length) document.getElementById('links-section').innerHTML = links.join('');
+
+    // О себе вкладка
+    document.getElementById('about-content').innerHTML = `
+      <div style="display:grid;gap:10px">
+        ${user.faculty ? `<div><strong>Факультет:</strong> ${user.faculty}</div>` : ''}
+        ${user.group ? `<div><strong>Группа:</strong> ${user.group}</div>` : ''}
+        ${user.year_of_study ? `<div><strong>Курс:</strong> ${user.year_of_study}</div>` : ''}
+        ${user.bio ? `<div><strong>О себе:</strong> ${user.bio}</div>` : ''}
+        <div><strong>Зарегистрирован:</strong> ${new Date(user.created_at).toLocaleDateString('ru-RU')}</div>
+        <div><strong>Ala Coins:</strong> <span style="color:var(--red);font-weight:700">${user.ala_coins} 🪙</span></div>
+      </div>
+    `;
+
+    // История монет
+    document.getElementById('coins-history').innerHTML = coins.transactions.length > 0
+      ? coins.transactions.map(t => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+            <div>
+              <div style="font-size:13px;font-weight:500">${t.reason}</div>
+              <div style="font-size:11px;color:var(--text-muted)">${new Date(t.created_at).toLocaleDateString('ru-RU')}</div>
+            </div>
+            <span style="color:${t.amount > 0 ? 'var(--primary)' : 'var(--red)'};font-weight:700;font-size:15px">
+              ${t.amount > 0 ? '+' : ''}${t.amount} 🪙
+            </span>
+          </div>`).join('')
+      : '<div style="text-align:center;padding:24px;color:var(--text-muted)">Пока нет операций</div>';
+
+    // Мои клубы
+    try {
+      const clubs = await api.getClubs();
+      const myClubs = clubs.filter(c => c.is_member);
+      document.getElementById('my-clubs').innerHTML = myClubs.length > 0
+        ? myClubs.map(c => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;font-weight:500">${c.name}</div>`).join('')
+        : '<div style="font-size:13px">Ты не состоишь в клубах</div>';
+    } catch(e) {}
+
+    loadUserPosts(user.id);
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+async function loadUserPosts(userId) {
+  try {
+    const data = await api.getFeed();
+    const myPosts = data.results.filter(p => p.author.id === userId);
+    document.getElementById('stat-posts').textContent = myPosts.length;
+    document.getElementById('user-posts').innerHTML = myPosts.length > 0
+      ? myPosts.map(p => components.postCard(p)).join('')
+      : '<div style="text-align:center;padding:32px;color:var(--text-muted)">Пока нет постов. Создай первый! 🚀</div>';
+  } catch(e) {}
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`tab-${name}`).classList.add('active');
+}
+
+function openEditModal() {
+  if (!userData) return;
+  document.getElementById('edit-first').value = userData.first_name || '';
+  document.getElementById('edit-last').value = userData.last_name || '';
+  document.getElementById('edit-bio').value = userData.bio || '';
+  document.getElementById('edit-skills').value = (userData.skills || []).join(', ');
+  document.getElementById('edit-interests').value = (userData.interests || []).join(', ');
+  document.getElementById('edit-github').value = userData.github || '';
+  document.getElementById('edit-linkedin').value = userData.linkedin || '';
+  document.getElementById('edit-portfolio').value = userData.portfolio || '';
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+async function saveProfile() {
+  const data = {
+    first_name: document.getElementById('edit-first').value.trim(),
+    last_name: document.getElementById('edit-last').value.trim(),
+    bio: document.getElementById('edit-bio').value.trim(),
+    skills: document.getElementById('edit-skills').value.split(',').map(s => s.trim()).filter(Boolean),
+    interests: document.getElementById('edit-interests').value.split(',').map(s => s.trim()).filter(Boolean),
+    github: document.getElementById('edit-github').value.trim(),
+    linkedin: document.getElementById('edit-linkedin').value.trim(),
+    portfolio: document.getElementById('edit-portfolio').value.trim(),
+  };
+
+  try {
+    await api.updateProfile(data);
+    closeModal('edit-modal');
+    utils.showAlert('Профиль обновлён!');
+    init();
+  } catch(e) {
+    utils.showAlert('Ошибка сохранения', 'error');
+  }
+}
+
+init();
+</script>
+</body>
+</html>

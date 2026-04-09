@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATUverce — ИИ Помощник</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    .chat-layout { display:flex; height:calc(100vh - 60px); }
+    .sessions-panel { width:260px; background:var(--card); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; }
+    .sessions-header { padding:14px 16px; border-bottom:1px solid var(--border); background:var(--primary); }
+    .sessions-header h3 { color:white; font-size:14px; font-weight:700; margin-bottom:8px; }
+    .btn-new-chat { width:100%; padding:8px; background:white; color:var(--primary); border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; }
+    .btn-new-chat:hover { background:#f0f4ff; }
+    .sessions-list { flex:1; overflow-y:auto; padding:8px; }
+    .session-item { padding:10px 12px; border-radius:8px; margin-bottom:4px; border:1px solid transparent; }
+    .session-item:hover { background:var(--primary-light); border-color:var(--border); }
+    .session-item.active { background:var(--primary-light); border-color:#c5d0ea; }
+    .session-title { font-size:13px; font-weight:500; color:var(--text); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; cursor:pointer; }
+    .session-date { font-size:11px; color:var(--text-muted); margin-top:2px; }
+    .session-actions { display:flex; gap:4px; margin-top:6px; }
+    .chat-main { flex:1; display:flex; flex-direction:column; }
+    .chat-header { padding:14px 20px; border-bottom:1px solid var(--border); background:var(--card); display:flex; align-items:center; gap:10px; }
+    .chat-title-display { font-size:15px; font-weight:700; color:var(--text); flex:1; }
+    .messages-area { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:14px; background:var(--bg); }
+    .chat-bubble { max-width:75%; padding:12px 16px; border-radius:16px; font-size:14px; line-height:1.6; }
+    .chat-bubble.user { background:var(--primary); color:white; align-self:flex-end; border-bottom-right-radius:4px; }
+    .chat-bubble.ai { background:white; border:1px solid var(--border); align-self:flex-start; border-bottom-left-radius:4px; border-left:3px solid var(--red); }
+    .chat-bubble .time { font-size:10px; opacity:0.6; margin-top:4px; }
+    .quick-area { padding:10px 16px; background:var(--card); border-top:1px solid var(--border); display:flex; gap:6px; flex-wrap:wrap; }
+    .quick-btn { padding:6px 12px; border:1px solid var(--border); border-radius:16px; background:none; cursor:pointer; font-size:12px; color:var(--text); transition:all 0.15s; }
+    .quick-btn:hover { background:var(--primary); color:white; border-color:var(--primary); }
+    .input-area { padding:12px 16px; background:var(--card); border-top:1px solid var(--border); display:flex; gap:10px; align-items:flex-end; }
+    .msg-input { flex:1; padding:10px 16px; border:1.5px solid var(--border); border-radius:20px; outline:none; font-size:14px; resize:none; max-height:120px; font-family:inherit; }
+    .msg-input:focus { border-color:var(--primary); }
+    .send-btn { width:42px; height:42px; background:var(--primary); color:white; border:none; border-radius:50%; cursor:pointer; font-size:18px; flex-shrink:0; transition:background 0.15s; }
+    .send-btn:hover { background:var(--primary-dark); }
+    .typing { display:flex; gap:4px; align-items:center; padding:4px 0; }
+    .typing span { width:7px; height:7px; border-radius:50%; background:var(--text-muted); animation:bounce 1.2s infinite; }
+    .typing span:nth-child(2) { animation-delay:.2s; }
+    .typing span:nth-child(3) { animation-delay:.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+    @media(max-width:640px) { .sessions-panel { display:none; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="feed.html" class="navbar-brand">
+    <div class="navbar-logo">АТУ</div>
+    ATU<span class="brand-red">verce</span>
+  </a>
+  <span id="nav-title" style="color:white;font-weight:700;font-size:15px">🤖 ИИ Помощник</span>
+  <div class="navbar-actions">
+    <button onclick="setLang('ru')" id="lang-ru" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer">RU</button>
+    <button onclick="setLang('en')" id="lang-en" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer">EN</button>
+    <button onclick="setLang('ky')" id="lang-ky" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer">КЫ</button>
+    <div class="ala-coins-badge">🪙 <span id="my-coins">—</span></div>
+  </div>
+</nav>
+
+<div class="chat-layout" style="margin-top:60px">
+  <div class="sessions-panel">
+    <div class="sessions-header">
+      <h3 id="label-my-chats">💬 Мои чаты</h3>
+      <button class="btn-new-chat" id="btn-new-chat" onclick="newChat()">+ Новый чат</button>
+    </div>
+    <div class="sessions-list" id="sessions-list">
+      <div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px">Загружаем...</div>
+    </div>
+  </div>
+
+  <div class="chat-main">
+    <div class="chat-header">
+      <span style="font-size:20px">🤖</span>
+      <div class="chat-title-display" id="chat-title">ИИ Помощник ATUverce</div>
+    </div>
+
+    <div class="messages-area" id="messages-area">
+      <div class="chat-bubble ai" id="welcome-msg">
+        Привет! Я ИИ-ассистент ATUverce колледжа Ала-Тоо 👋<br><br>
+        Могу помочь с учёбой, карьерой, вопросами о колледже и Ala Coins.<br>
+        Задавай любой вопрос!
+      </div>
+    </div>
+
+    <div class="quick-area" id="quick-area">
+      <button class="quick-btn" id="q1" onclick="sendQuick(getQuickText(0))">🪙 Ala Coins</button>
+      <button class="quick-btn" id="q2" onclick="sendQuick(getQuickText(1))">🎓 Клубы</button>
+      <button class="quick-btn" id="q3" onclick="sendQuick(getQuickText(2))">💼 Резюме</button>
+      <button class="quick-btn" id="q4" onclick="sendQuick(getQuickText(3))">💻 Программирование</button>
+    </div>
+
+    <div class="input-area">
+      <textarea id="msg-input" class="msg-input" placeholder="Напиши вопрос..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+      <button class="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script src="../assets/js/api.js"></script>
+<script>
+let currentSessionId = null;
+let isSending = false;
+
+const i18n = {
+  ru: {
+    navTitle: '🤖 ИИ Помощник',
+    myChats: '💬 Мои чаты',
+    newChat: '+ Новый чат',
+    placeholder: 'Напиши вопрос...',
+    noChats: 'Нет чатов. Создай новый!',
+    loading: 'Загружаем историю...',
+    confirmDel: 'Удалить этот чат?',
+    newName: 'Новое название:',
+    errEmpty: 'Напиши сообщение!',
+    errSend: 'Ошибка отправки 😔',
+    open: 'Открыть',
+    welcome: 'Привет! Я ИИ-ассистент ATUverce колледжа Ала-Тоо 👋<br><br>Могу помочь с учёбой, карьерой, вопросами о колледже и Ala Coins.<br>Задавай любой вопрос!',
+    newWelcome: 'Привет! Новый чат начат. Задавай вопрос! 🚀',
+    quickTexts: ['Как заработать Ala Coins?', 'Какие клубы есть в колледже?', 'Помоги написать резюме', 'Советы по программированию'],
+    quickLabels: ['🪙 Ala Coins', '🎓 Клубы', '💼 Резюме', '💻 Программирование']
+  },
+  en: {
+    navTitle: '🤖 AI Assistant',
+    myChats: '💬 My chats',
+    newChat: '+ New chat',
+    placeholder: 'Ask a question...',
+    noChats: 'No chats. Create a new one!',
+    loading: 'Loading history...',
+    confirmDel: 'Delete this chat?',
+    newName: 'New name:',
+    errEmpty: 'Write a message!',
+    errSend: 'Send error 😔',
+    open: 'Open',
+    welcome: 'Hi! I am the ATUverce AI assistant of Ala-Too College 👋<br><br>I can help with studies, career, college questions and Ala Coins.<br>Ask anything!',
+    newWelcome: 'Hi! New chat started. Ask your question! 🚀',
+    quickTexts: ['How to earn Ala Coins?', 'What clubs are in the college?', 'Help me write a resume', 'Programming tips'],
+    quickLabels: ['🪙 Ala Coins', '🎓 Clubs', '💼 Resume', '💻 Programming']
+  },
+  ky: {
+    navTitle: '🤖 ИИ Жардамчы',
+    myChats: '💬 Менин чаттарым',
+    newChat: '+ Жаңы чат',
+    placeholder: 'Суроо жаз...',
+    noChats: 'Чат жок. Жаңысын түзүү!',
+    loading: 'Тарых жүктөлүүдө...',
+    confirmDel: 'Бул чатты жок кылуу?',
+    newName: 'Жаңы аталыш:',
+    errEmpty: 'Суроо жаз!',
+    errSend: 'Ката чыкты 😔',
+    open: 'Ачуу',
+    welcome: 'Салам! Мен Ала-Тоо колледжинин ATUverce ИИ ассистентимин 👋<br><br>Окуу, карьера, колледж жана Ala Coins боюнча жардам бере алам.<br>Суроо бер!',
+    newWelcome: 'Салам! Жаңы чат башталды. Суроо бер! 🚀',
+    quickTexts: ['Ala Coins кантип табуу?', 'Колледжде кандай клубдар бар?', 'Резюме жазууга жардам бер', 'Программалоо боюнча кеңеш'],
+    quickLabels: ['🪙 Ala Coins', '🎓 Клубдар', '💼 Резюме', '💻 Программалоо']
+  }
+};
+
+function getLang() { return localStorage.getItem('lang') || 'ru'; }
+function setLang(l) { localStorage.setItem('lang', l); location.reload(); }
+function tx(key) { return i18n[getLang()][key] || key; }
+function getQuickText(i) { return i18n[getLang()].quickTexts[i]; }
+
+function applyLang() {
+  const l = getLang();
+  document.getElementById('nav-title').textContent = tx('navTitle');
+  document.getElementById('label-my-chats').innerHTML = tx('myChats');
+  document.getElementById('btn-new-chat').textContent = tx('newChat');
+  document.getElementById('msg-input').placeholder = tx('placeholder');
+
+  const labels = i18n[l].quickLabels;
+  document.getElementById('q1').textContent = labels[0];
+  document.getElementById('q2').textContent = labels[1];
+  document.getElementById('q3').textContent = labels[2];
+  document.getElementById('q4').textContent = labels[3];
+
+  const welcomeMsg = document.getElementById('welcome-msg');
+  if (welcomeMsg) welcomeMsg.innerHTML = tx('welcome');
+
+  ['ru','en','ky'].forEach(code => {
+    const btn = document.getElementById('lang-' + code);
+    if (btn) btn.style.background = code === l ? 'rgba(255,255,255,0.35)' : 'none';
+  });
+}
+
+async function init() {
+  applyLang();
+  try {
+    const coins = await api.getMyCoins();
+    document.getElementById('my-coins').textContent = coins.total;
+  } catch(e) {}
+  loadSessions();
+}
+
+async function loadSessions() {
+  try {
+    const sessions = await api.getChatSessions();
+    renderSessions(sessions);
+  } catch(e) {}
+}
+
+function renderSessions(sessions) {
+  const el = document.getElementById('sessions-list');
+  if (!sessions.length) {
+    el.innerHTML = `<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px">${tx('noChats')}</div>`;
+    return;
+  }
+  el.innerHTML = sessions.map(s => `
+    <div class="session-item ${s.id === currentSessionId ? 'active' : ''}" id="sess-${s.id}">
+      <div class="session-title" id="sess-title-${s.id}" onclick="openSession(${s.id})">${s.title || 'Чат'}</div>
+      <div class="session-date">${timeAgo(s.updated_at)}</div>
+      <div class="session-actions">
+        <button onclick="openSession(${s.id})" style="flex:1;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:none;font-size:12px;cursor:pointer;color:var(--primary);font-weight:600">${tx('open')}</button>
+        <button onclick="renameSession(${s.id})" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--primary-light);font-size:12px;cursor:pointer" title="Переименовать">✏️</button>
+        <button onclick="deleteSession(${s.id})" style="padding:4px 8px;border:1px solid var(--red-light);border-radius:6px;background:var(--red-light);font-size:12px;cursor:pointer" title="Удалить">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+async function openSession(id) {
+  currentSessionId = id;
+  document.querySelectorAll('.session-item').forEach(el => el.classList.remove('active'));
+  const item = document.getElementById(`sess-${id}`);
+  if (item) item.classList.add('active');
+  document.getElementById('quick-area').style.display = 'none';
+  document.getElementById('messages-area').innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-muted)">${tx('loading')}</div>`;
+  try {
+    const data = await api.getSession(id);
+    document.getElementById('chat-title').textContent = data.title || 'Чат';
+    const area = document.getElementById('messages-area');
+    area.innerHTML = '';
+    data.messages.forEach(m => appendBubble(m.role, m.content, m.created_at));
+    area.scrollTop = area.scrollHeight;
+  } catch(e) {}
+}
+
+function newChat() {
+  currentSessionId = null;
+  document.getElementById('chat-title').textContent = tx('navTitle');
+  document.getElementById('messages-area').innerHTML = `<div class="chat-bubble ai">${tx('newWelcome')}</div>`;
+  document.getElementById('quick-area').style.display = 'flex';
+  document.querySelectorAll('.session-item').forEach(el => el.classList.remove('active'));
+}
+
+async function renameSession(id) {
+  const currentTitle = document.getElementById(`sess-title-${id}`)?.textContent || '';
+  const newTitle = prompt(tx('newName'), currentTitle);
+  if (!newTitle || !newTitle.trim()) return;
+  try {
+    await api.renameSession(id, newTitle.trim());
+    document.getElementById(`sess-title-${id}`).textContent = newTitle.trim();
+    if (id === currentSessionId) {
+      document.getElementById('chat-title').textContent = newTitle.trim();
+    }
+    loadSessions();
+  } catch(e) { alert('Ошибка переименования'); }
+}
+
+async function deleteSession(id) {
+  if (!confirm(tx('confirmDel'))) return;
+  try {
+    await api.deleteSession(id);
+    if (id === currentSessionId) newChat();
+    loadSessions();
+  } catch(e) {
+    console.error('Delete error:', e.message);
+    alert('Ошибка: ' + e.message);
+  }
+}
+
+async function sendQuick(text) {
+  document.getElementById('msg-input').value = text;
+  await sendMessage();
+}
+
+async function sendMessage() {
+  if (isSending) return;
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if (!text) { alert(tx('errEmpty')); return; }
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('quick-area').style.display = 'none';
+  isSending = true;
+  appendBubble('user', text);
+  showTyping();
+  try {
+    const res = await api.sendMessage(text, currentSessionId);
+    currentSessionId = res.session_id;
+    hideTyping();
+    appendBubble('ai', res.reply);
+    loadSessions();
+    const titleEl = document.getElementById('chat-title');
+    if (titleEl.textContent === tx('navTitle')) {
+      titleEl.textContent = text.slice(0, 60);
+    }
+  } catch(e) {
+    hideTyping();
+    appendBubble('ai', tx('errSend'));
+  }
+  isSending = false;
+}
+
+function appendBubble(role, text, time) {
+  const area = document.getElementById('messages-area');
+  const div = document.createElement('div');
+  div.className = `chat-bubble ${role}`;
+  div.innerHTML = text.replace(/\n/g, '<br>');
+  if (time) {
+    const t = document.createElement('div');
+    t.className = 'time';
+    t.textContent = timeAgo(time);
+    div.appendChild(t);
+  }
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function showTyping() {
+  const area = document.getElementById('messages-area');
+  const div = document.createElement('div');
+  div.id = 'typing';
+  div.className = 'chat-bubble ai typing';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing');
+  if (el) el.remove();
+}
+
+function timeAgo(date) {
+  const diff = (Date.now() - new Date(date)) / 1000;
+  if (diff < 60) return 'только что';
+  if (diff < 3600) return Math.floor(diff / 60) + ' мин назад';
+  if (diff < 86400) return Math.floor(diff / 3600) + ' ч назад';
+  return new Date(date).toLocaleDateString('ru-RU');
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATUverce — Главная</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="manifest" href="../manifest.json">
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="feed.html" class="navbar-brand">
+    <div class="navbar-logo">АТУ</div>
+    ATU<span class="brand-red">verce</span>
+  </a>
+  <div class="navbar-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-input" placeholder="Поиск студентов, постов...">
+  </div>
+  <div class="navbar-actions">
+    <button onclick="setLang('ru')" id="lang-ru" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer">RU</button>
+    <button onclick="setLang('en')" id="lang-en" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer">EN</button>
+    <button onclick="setLang('ky')" id="lang-ky" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer">КЫ</button>
+    <div class="ala-coins-badge" onclick="window.location.href='leaderboard.html'">
+      🪙 <span id="my-coins">—</span>
+    </div>
+    <button class="nav-icon-btn" title="Уведомления">🔔</button>
+    <button class="nav-icon-btn" onclick="window.location.href='profile.html'">👤</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-college-badge">
+      <div class="cname">Ала-Тоо IUC</div>
+      <div class="cdesc">IT & Business College</div>
+    </div>
+    <a href="feed.html" class="nav-link active" id="nav-home"><span class="icon">🏠</span> <span class="nav-label">Главная</span></a>
+    <a href="profile.html" class="nav-link" id="nav-profile"><span class="icon">👤</span> <span class="nav-label">Мой профиль</span></a>
+    <a href="news.html" class="nav-link" id="nav-news"><span class="icon">📰</span> <span class="nav-label">Новости ATU</span></a>
+    <a href="clubs.html" class="nav-link" id="nav-clubs"><span class="icon">🎓</span> <span class="nav-label">Клубы</span></a>
+    <a href="leaderboard.html" class="nav-link" id="nav-lb"><span class="icon">🏆</span> <span class="nav-label">Лидерборд</span></a>
+    <a href="ai_chat.html" class="nav-link" id="nav-ai"><span class="icon">🤖</span> <span class="nav-label">ИИ Помощник</span></a>
+    <hr style="margin:14px 4px;border:none;border-top:1px solid var(--border)">
+    <button onclick="api.logout()" style="width:100%;border:none;background:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;color:var(--red);font-size:14px;font-weight:500;"
+      onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
+      <span style="font-size:18px">🚪</span> <span id="nav-logout">Выйти</span>
+    </button>
+  </aside>
+
+  <main class="main-content">
+    <div class="stories-bar" id="stories-bar">
+      <div class="story-item" onclick="utils.showAlert('Создание сторис скоро!')">
+        <div class="story-avatar" style="background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:22px;border:2px dashed #c5d0ea">➕</div>
+        <span class="story-name">Добавить</span>
+      </div>
+    </div>
+
+    <div class="create-post">
+      <div class="avatar" id="my-avatar">—</div>
+      <input class="create-post-input" id="create-post-input" type="text" placeholder="Поделись чем-то с однокурсниками..." readonly onclick="openCreatePost()">
+    </div>
+    <div class="card" style="padding:8px 16px;display:flex;gap:4px;justify-content:space-around;margin-bottom:16px">
+      <button class="action-btn" onclick="openCreatePost('image')" style="font-size:13px">📷 <span id="btn-photo">Фото</span></button>
+      <button class="action-btn" onclick="openCreatePost('video')" style="font-size:13px">🎬 <span id="btn-video">Видео</span></button>
+      <button class="action-btn" onclick="openCreatePost('text')" style="font-size:13px">✏️ <span id="btn-article">Статья</span></button>
+    </div>
+
+    <div id="feed-container">
+      <div style="text-align:center;padding:40px;color:var(--text-muted)">
+        <div style="font-size:32px;margin-bottom:8px">🌀</div>
+        <span id="loading-text">Загружаем ленту...</span>
+      </div>
+    </div>
+    <button class="btn btn-outline" id="load-more-btn" style="width:100%;margin-top:8px;display:none" onclick="loadMorePosts()">
+      <span id="load-more-text">Загрузить ещё</span>
+    </button>
+  </main>
+
+  <aside class="right-sidebar">
+    <div class="card" style="padding:16px;margin-bottom:12px;border-top:3px solid var(--red)">
+      <div class="section-header" style="border-bottom-color:var(--red)">
+        <span>🪙</span>
+        <h3 id="label-my-coins" style="color:var(--red)">Мои Ala Coins</h3>
+      </div>
+      <div style="font-size:36px;font-weight:800;color:var(--red);text-align:center;margin:8px 0" id="my-coins-big">—</div>
+      <a href="leaderboard.html" class="btn btn-outline" style="width:100%;font-size:13px" id="btn-leaderboard">Посмотреть рейтинг</a>
+    </div>
+    <div class="card" style="padding:16px;margin-bottom:12px;border-top:3px solid var(--primary)">
+      <div class="section-header">
+        <span>🏆</span>
+        <h3 id="label-top">Топ студентов</h3>
+      </div>
+      <div id="mini-leaderboard">Загружаем...</div>
+      <a href="leaderboard.html" class="btn btn-outline" style="width:100%;margin-top:10px;font-size:13px" id="btn-full-rating">Полный рейтинг →</a>
+    </div>
+    <div class="card" style="padding:16px;border-top:3px solid var(--primary)">
+      <div class="section-header">
+        <span>📰</span>
+        <h3 id="label-news">Новости ATU</h3>
+      </div>
+      <div id="mini-news">Загружаем...</div>
+    </div>
+  </aside>
+</div>
+
+<nav class="mobile-tabbar">
+  <a href="feed.html" class="tab-item active"><span class="tab-icon">🏠</span><span id="tab-home">Главная</span></a>
+  <a href="news.html" class="tab-item"><span class="tab-icon">📰</span><span id="tab-news">Новости</span></a>
+  <a href="ai_chat.html" class="tab-item"><span class="tab-icon">🤖</span><span id="tab-ai">ИИ</span></a>
+  <a href="leaderboard.html" class="tab-item"><span class="tab-icon">🏆</span><span id="tab-lb">Рейтинг</span></a>
+  <a href="profile.html" class="tab-item"><span class="tab-icon">👤</span><span id="tab-profile">Профиль</span></a>
+</nav>
+
+<div id="create-post-modal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">✏️ Новый пост</h3>
+      <button class="modal-close" onclick="closeModal('create-post-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <textarea id="post-content" class="form-input" rows="4" placeholder="Поделись с однокурсниками..." style="resize:none"></textarea>
+      <div class="form-group" style="margin-top:12px">
+        <label class="form-label">🖼️ Фото / видео</label>
+        <input type="file" id="post-media" class="form-input" accept="image/*,video/*">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="tags-label">#️⃣ Хештеги (через запятую)</label>
+        <input type="text" id="post-tags" class="form-input" placeholder="учёба, IT, программирование">
+      </div>
+      <div style="background:var(--red-light);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);border-left:3px solid var(--red)" id="coins-hint">
+        🪙 За этот пост ты получишь <strong>+5 Ala Coins!</strong>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" style="border:1.5px solid var(--border)" onclick="closeModal('create-post-modal')" id="btn-cancel">Отмена</button>
+      <button class="btn btn-primary" onclick="submitPost()" id="btn-publish">Опубликовать</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/main.js"></script>
+<script src="../assets/js/api.js"></script>
+<script>
+let currentPage = 1;
+let isLoading = false;
+
+const feedI18n = {
+  ru: { search:'Поиск студентов, постов...', createPlaceholder:'Поделись чем-то с однокурсниками...', home:'Главная', profile:'Мой профиль', news:'Новости ATU', clubs:'Клубы', leaderboard:'Лидерборд', ai:'ИИ Помощник', logout:'Выйти', myCoins:'Мои Ala Coins', topStudents:'Топ студентов', atuNews:'Новости ATU', loadMore:'Загрузить ещё', fullRating:'Полный рейтинг →', seeRating:'Посмотреть рейтинг', photo:'Фото', video:'Видео', article:'Статья', newPost:'✏️ Новый пост', cancel:'Отмена', publish:'Опубликовать', tagsLabel:'#️⃣ Хештеги (через запятую)', coinsHint:'🪙 За этот пост ты получишь <strong>+5 Ala Coins!</strong>', tabHome:'Главная', tabNews:'Новости', tabAi:'ИИ', tabLb:'Рейтинг', tabProfile:'Профиль' },
+  en: { search:'Search students, posts...', createPlaceholder:'Share something with classmates...', home:'Home', profile:'My Profile', news:'ATU News', clubs:'Clubs', leaderboard:'Leaderboard', ai:'AI Assistant', logout:'Log out', myCoins:'My Ala Coins', topStudents:'Top students', atuNews:'ATU News', loadMore:'Load more', fullRating:'Full rating →', seeRating:'See rating', photo:'Photo', video:'Video', article:'Article', newPost:'✏️ New post', cancel:'Cancel', publish:'Publish', tagsLabel:'#️⃣ Hashtags (comma separated)', coinsHint:'🪙 You will get <strong>+5 Ala Coins</strong> for this post!', tabHome:'Home', tabNews:'News', tabAi:'AI', tabLb:'Rating', tabProfile:'Profile' },
+  ky: { search:'Студенттерди, посттарды издөө...', createPlaceholder:'Курсташтарың менен бөлүш...', home:'Башкы бет', profile:'Менин профилим', news:'АТУ жаңылыктары', clubs:'Клубдар', leaderboard:'Рейтинг', ai:'ИИ Жардамчы', logout:'Чыгуу', myCoins:'Менин Ala Coins', topStudents:'Мыкты студенттер', atuNews:'АТУ жаңылыктары', loadMore:'Дагы жүктөө', fullRating:'Толук рейтинг →', seeRating:'Рейтингди көрүү', photo:'Сүрөт', video:'Видео', article:'Макала', newPost:'✏️ Жаңы пост', cancel:'Жокко чыгаруу', publish:'Жарыялоо', tagsLabel:'#️⃣ Хэштегдер (үтүр менен)', coinsHint:'🪙 Бул пост үчүн <strong>+5 Ala Coins</strong> аласың!', tabHome:'Башкы', tabNews:'Жаңылык', tabAi:'ИИ', tabLb:'Рейтинг', tabProfile:'Профиль' }
+};
+
+function applyFeedLang() {
+  const l = localStorage.getItem('lang') || 'ru';
+  const tx = feedI18n[l] || feedI18n.ru;
+
+  document.getElementById('search-input').placeholder = tx.search;
+  document.getElementById('create-post-input').placeholder = tx.createPlaceholder;
+  document.querySelector('#nav-home .nav-label').textContent = tx.home;
+  document.querySelector('#nav-profile .nav-label').textContent = tx.profile;
+  document.querySelector('#nav-news .nav-label').textContent = tx.news;
+  document.querySelector('#nav-clubs .nav-label').textContent = tx.clubs;
+  document.querySelector('#nav-lb .nav-label').textContent = tx.leaderboard;
+  document.querySelector('#nav-ai .nav-label').textContent = tx.ai;
+  document.getElementById('nav-logout').textContent = tx.logout;
+  document.getElementById('label-my-coins').textContent = tx.myCoins;
+  document.getElementById('label-top').textContent = tx.topStudents;
+  document.getElementById('label-news').textContent = tx.atuNews;
+  document.getElementById('load-more-text').textContent = tx.loadMore;
+  document.getElementById('btn-full-rating').textContent = tx.fullRating;
+  document.getElementById('btn-leaderboard').textContent = tx.seeRating;
+  document.getElementById('btn-photo').textContent = tx.photo;
+  document.getElementById('btn-video').textContent = tx.video;
+  document.getElementById('btn-article').textContent = tx.article;
+  document.getElementById('modal-title').textContent = tx.newPost;
+  document.getElementById('btn-cancel').textContent = tx.cancel;
+  document.getElementById('btn-publish').textContent = tx.publish;
+  document.getElementById('tags-label').textContent = tx.tagsLabel;
+  document.getElementById('coins-hint').innerHTML = tx.coinsHint;
+  document.getElementById('tab-home').textContent = tx.tabHome;
+  document.getElementById('tab-news').textContent = tx.tabNews;
+  document.getElementById('tab-ai').textContent = tx.tabAi;
+  document.getElementById('tab-lb').textContent = tx.tabLb;
+  document.getElementById('tab-profile').textContent = tx.tabProfile;
+
+  ['ru','en','ky'].forEach(code => {
+    const btn = document.getElementById('lang-' + code);
+    if (btn) btn.style.background = code === l ? 'rgba(255,255,255,0.35)' : 'none';
+  });
+}
+
+async function init() {
+  applyFeedLang();
+  try {
+    const coins = await api.getMyCoins();
+    document.getElementById('my-coins').textContent = coins.total;
+    document.getElementById('my-coins-big').textContent = coins.total;
+  } catch(e) {}
+  loadFeed();
+  loadStories();
+  loadMiniLeaderboard();
+  loadMiniNews();
+}
+
+async function loadFeed(reset = true) {
+  if (isLoading) return;
+  isLoading = true;
+  if (reset) currentPage = 1;
+  try {
+    const data = await api.getFeed(currentPage);
+    const container = document.getElementById('feed-container');
+    if (reset) container.innerHTML = '';
+    if (data.results.length === 0 && reset) {
+      container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted)"><div style="font-size:40px;margin-bottom:8px">🚀</div>Здесь пока нет постов. Будь первым!</div>`;
+    } else {
+      container.innerHTML += data.results.map(p => components.postCard(p)).join('');
+    }
+    document.getElementById('load-more-btn').style.display = data.next ? 'block' : 'none';
+  } catch(e) {
+    document.getElementById('feed-container').innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted)"><div style="font-size:32px;margin-bottom:8px">😔</div>Ошибка загрузки.</div>`;
+  }
+  isLoading = false;
+}
+
+async function loadStories() {
+  try {
+    const stories = await api.getStories();
+    const bar = document.getElementById('stories-bar');
+    const addBtn = bar.querySelector('.story-item');
+    bar.innerHTML = '';
+    bar.appendChild(addBtn);
+    stories.forEach(s => {
+      const el = document.createElement('div');
+      el.className = 'story-item';
+      el.innerHTML = `<div class="story-avatar"><img src="${s.author.avatar||''}" onerror="this.style.display='none'" alt=""></div><span class="story-name">${s.author.username}</span>`;
+      bar.appendChild(el);
+    });
+  } catch(e) {}
+}
+
+async function loadMiniLeaderboard() {
+  try {
+    const data = await api.getLeaderboard();
+    const medals = ['🥇','🥈','🥉'];
+    document.getElementById('mini-leaderboard').innerHTML = data.slice(0,3).map((u,i) =>
+      `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:16px">${medals[i]}</span>
+        <span style="flex:1;font-size:13px;font-weight:500">${u.full_name}</span>
+        <span style="font-size:12px;color:var(--red);font-weight:700">${u.ala_coins}🪙</span>
+      </div>`).join('');
+  } catch(e) { document.getElementById('mini-leaderboard').textContent = '—'; }
+}
+
+async function loadMiniNews() {
+  try {
+    const data = await api.getNews();
+    document.getElementById('mini-news').innerHTML = (data.results||[]).slice(0,3).map(n =>
+      `<div style="padding:8px 0;border-bottom:1px solid var(--border)">
+        <a href="news.html" style="color:var(--text);text-decoration:none;font-weight:600;font-size:13px;display:block;margin-bottom:3px">${n.title}</a>
+        <span style="font-size:11px;color:var(--text-muted)">${utils.timeAgo(n.created_at)}</span>
+      </div>`).join('') || '<div style="color:var(--text-muted);font-size:13px">Нет новостей</div>';
+  } catch(e) {}
+}
+
+function loadMorePosts() { currentPage++; loadFeed(false); }
+function openCreatePost() { document.getElementById('create-post-modal').style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+async function submitPost() {
+  const content = document.getElementById('post-content').value.trim();
+  if (!content) { utils.showAlert('Напиши что-нибудь!', 'error'); return; }
+  const tags = document.getElementById('post-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+  try {
+    await api.createPost({ content, tags });
+    closeModal('create-post-modal');
+    document.getElementById('post-content').value = '';
+    document.getElementById('post-tags').value = '';
+    utils.showAlert('Пост опубликован! +5 Ala Coins 🪙');
+    loadFeed();
+    const coins = await api.getMyCoins();
+    document.getElementById('my-coins').textContent = coins.total;
+    document.getElementById('my-coins-big').textContent = coins.total;
+  } catch(e) {
+    utils.showAlert('Ошибка публикации 😔', 'error');
+  }
+}
+
+init();
+</script>
+</body>
+</html>

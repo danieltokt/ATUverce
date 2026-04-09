@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATUverce — Новости</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    .news-grid { display: grid; gap: 12px; }
+    .news-big-card { padding: 0; overflow: hidden; }
+    .news-big-img { width: 100%; height: 220px; object-fit: cover; }
+    .news-big-body { padding: 16px; }
+    .category-filter {
+      display: flex; gap: 8px; overflow-x: auto;
+      padding: 4px 0 12px; scrollbar-width: none;
+    }
+    .category-filter::-webkit-scrollbar { display: none; }
+    .cat-chip {
+      padding: 6px 16px; border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: white; cursor: pointer;
+      font-size: 13px; font-weight: 500;
+      white-space: nowrap; transition: all 0.15s;
+    }
+    .cat-chip:hover, .cat-chip.active {
+      background: var(--primary); color: white; border-color: var(--primary);
+    }
+    .event-card {
+      display: flex; gap: 14px; padding: 14px 16px;
+      border-bottom: 1px solid var(--border); align-items: flex-start;
+    }
+    .event-date-box {
+      min-width: 48px; text-align: center;
+      background: var(--primary-light); border-radius: 8px;
+      padding: 6px; border: 1px solid #c5d0ea;
+    }
+    .event-day { font-size: 22px; font-weight: 800; color: var(--primary); line-height: 1; }
+    .event-month { font-size: 11px; color: var(--primary); font-weight: 600; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="feed.html" class="navbar-brand">
+    <div class="navbar-logo">АТУ</div>
+    ATU<span class="brand-red">verce</span>
+  </a>
+  <div class="navbar-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="search-input" placeholder="Поиск новостей..." oninput="filterNews()">
+  </div>
+  <div class="navbar-actions">
+    <button onclick="setLang('ru')" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer" id="lang-ru">RU</button>
+    <button onclick="setLang('en')" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer" id="lang-en">EN</button>
+    <button onclick="setLang('ky')" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.3);background:none;color:white;font-size:12px;font-weight:700;cursor:pointer" id="lang-ky">КЫ</button>
+    <div class="ala-coins-badge">🪙 <span id="my-coins">—</span></div>
+    <button class="nav-icon-btn">🔔</button>
+    <button class="nav-icon-btn" onclick="window.location.href='profile.html'">👤</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-college-badge">
+      <div class="cname">Ала-Тоо IUC</div>
+      <div class="cdesc">IT & Business College</div>
+    </div>
+    <a href="feed.html" class="nav-link"><span class="icon">🏠</span> Главная</a>
+    <a href="profile.html" class="nav-link"><span class="icon">👤</span> Мой профиль</a>
+    <a href="news.html" class="nav-link active"><span class="icon">📰</span> Новости ATU</a>
+    <a href="clubs.html" class="nav-link"><span class="icon">🎓</span> Клубы</a>
+    <a href="leaderboard.html" class="nav-link"><span class="icon">🏆</span> Лидерборд</a>
+    <a href="ai_chat.html" class="nav-link"><span class="icon">🤖</span> ИИ Помощник</a>
+    <hr style="margin:14px 4px;border:none;border-top:1px solid var(--border)">
+    <button onclick="api.logout()" style="width:100%;border:none;background:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;color:var(--red);font-size:14px;font-weight:500"
+      onmouseover="this.style.background='var(--red-light)'" onmouseout="this.style.background='none'">
+      <span style="font-size:18px">🚪</span> Выйти
+    </button>
+  </aside>
+
+  <main class="main-content">
+    <div class="category-filter">
+      <button class="cat-chip active" onclick="setCategory('', this)">🗞️ Все</button>
+      <button class="cat-chip" onclick="setCategory('announcement', this)">📢 Объявления</button>
+      <button class="cat-chip" onclick="setCategory('event', this)">🎉 События</button>
+      <button class="cat-chip" onclick="setCategory('achievement', this)">🏆 Достижения</button>
+      <button class="cat-chip" onclick="setCategory('scholarship', this)">💰 Стипендии</button>
+    </div>
+
+    <div id="news-container" class="news-grid">
+      <div style="text-align:center;padding:40px;color:var(--text-muted)">
+        <div style="font-size:32px;margin-bottom:8px">📰</div>
+        Загружаем новости...
+      </div>
+    </div>
+  </main>
+
+  <aside class="right-sidebar">
+    <div class="card" style="padding:16px;border-top:3px solid var(--red)">
+      <div class="section-header"><span>📅</span><h3 style="color:var(--red)">Ближайшие события</h3></div>
+      <div id="upcoming-events">Загружаем...</div>
+    </div>
+  </aside>
+</div>
+
+<nav class="mobile-tabbar">
+  <a href="feed.html" class="tab-item"><span class="tab-icon">🏠</span>Главная</a>
+  <a href="news.html" class="tab-item active"><span class="tab-icon">📰</span>Новости</a>
+  <a href="ai_chat.html" class="tab-item"><span class="tab-icon">🤖</span>ИИ</a>
+  <a href="leaderboard.html" class="tab-item"><span class="tab-icon">🏆</span>Рейтинг</a>
+  <a href="profile.html" class="tab-item"><span class="tab-icon">👤</span>Профиль</a>
+</nav>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+let allNews = [];
+let currentCategory = '';
+
+const catLabels = {
+  announcement: { label: 'Объявление', cls: 'cat-announcement' },
+  event: { label: 'Событие', cls: 'cat-event' },
+  achievement: { label: 'Достижение', cls: 'cat-achievement' },
+  scholarship: { label: 'Стипендия', cls: 'cat-scholarship' },
+  general: { label: 'Общее', cls: 'cat-announcement' },
+};
+
+async function init() {
+  try {
+    const coins = await api.getMyCoins();
+    document.getElementById('my-coins').textContent = coins.total;
+  } catch(e) {}
+  loadNews();
+}
+
+async function loadNews() {
+  try {
+    const data = await api.getNews(currentCategory);
+    allNews = data.results || [];
+    renderNews(allNews);
+    renderUpcoming(allNews);
+  } catch(e) {
+    document.getElementById('news-container').innerHTML =
+      '<div style="text-align:center;padding:40px;color:var(--text-muted)">Ошибка загрузки новостей</div>';
+  }
+}
+
+function renderNews(news) {
+  if (news.length === 0) {
+    document.getElementById('news-container').innerHTML =
+      '<div style="text-align:center;padding:40px;color:var(--text-muted)">Новостей нет</div>';
+    return;
+  }
+
+  document.getElementById('news-container').innerHTML = news.map((n, i) => {
+    const cat = catLabels[n.category] || catLabels.general;
+    if (i === 0 && n.image) {
+      return `<div class="card news-big-card">
+        <img src="${n.image}" class="news-big-img" alt="${n.title}">
+        <div class="news-big-body">
+          <span class="news-category ${cat.cls}">${cat.label}</span>
+          <h2 style="font-size:20px;margin:8px 0">${n.title}</h2>
+          <p style="color:var(--text-muted);font-size:14px;line-height:1.6">${n.content.slice(0, 200)}...</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+            <span style="font-size:12px;color:var(--text-muted)">${utils.timeAgo(n.created_at)} · ${n.views_count} просмотров</span>
+            <button class="btn btn-primary" style="padding:7px 16px;font-size:13px">Читать →</button>
+          </div>
+        </div>
+      </div>`;
+    }
+    return `<div class="card news-card">
+      <span class="news-category ${cat.cls}">${cat.label}</span>
+      <h3 style="font-size:16px;margin:8px 0;font-weight:700">${n.title}</h3>
+      <p style="color:var(--text-muted);font-size:14px;line-height:1.5">${n.content.slice(0, 120)}...</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+        <span style="font-size:12px;color:var(--text-muted)">${utils.timeAgo(n.created_at)}</span>
+        <button class="btn btn-outline" style="padding:6px 14px;font-size:13px">Читать →</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderUpcoming(news) {
+  const events = news.filter(n => n.event_date && new Date(n.event_date) > new Date());
+  document.getElementById('upcoming-events').innerHTML = events.length > 0
+    ? events.slice(0, 4).map(n => {
+        const d = new Date(n.event_date);
+        return `<div class="event-card">
+          <div class="event-date-box">
+            <div class="event-day">${d.getDate()}</div>
+            <div class="event-month">${d.toLocaleString('ru', {month: 'short'})}</div>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:2px">${n.title}</div>
+            <div style="font-size:12px;color:var(--text-muted)">${d.toLocaleTimeString('ru', {hour:'2-digit',minute:'2-digit'})}</div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="font-size:13px;color:var(--text-muted);padding:8px 16px">Нет запланированных событий</div>';
+}
+
+function setCategory(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  loadNews();
+}
+
+function filterNews() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const filtered = allNews.filter(n =>
+    n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)
+  );
+  renderNews(filtered);
+}
+
+init();
+</script>
+</body>
+</html>

@@ -10,7 +10,11 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-change-me-in-production')
 DEBUG = env('DEBUG', default=True)
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
+ALLOWED_HOSTS = [
+    ".onrender.com",
+    "localhost",
+    "127.0.0.1"
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -91,10 +95,9 @@ SIMPLE_JWT = {
 }
 
 # CORS - разрешаем запросы с Vercel
-CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
-    'http://localhost:3000',
-    'http://127.0.0.1:5500',
-])
+CORS_ALLOWED_ORIGINS = [
+    "https://at-uverce.vercel.app",
+]
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 # Static & Media
